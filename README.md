@@ -112,7 +112,7 @@ Windows PowerShell을 실행합니다.
 
 
 ```powershell
-irm https://raw.githubusercontent.com/dawith-ai/cli-installer/main/install.ps1 | iex
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/dawith-ai/cli-installer/main/install.ps1'))
 ```
 
 
