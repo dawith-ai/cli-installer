@@ -4,6 +4,22 @@
 
 기본 설치에는 Node.js, Python, Git, VS Code, Claude Code, OpenAI Codex가 포함됩니다. Gemini CLI는 `All` 프로필에서 함께 설치할 수 있습니다.
 
+## 🙏 참고 및 출처 (Credits)
+
+이 프로젝트는 아래 오픈소스 프로젝트를 참고하여 제작되었습니다.
+
+- [jikime/oneshot-installer-for-window](https://github.com/jikime/oneshot-installer-for-window)
+  - Windows 환경에서 AI 개발 도구를 한 번에 설치하는 구조와 설치 흐름을 참고했습니다.
+
+- [jikime/oneshot-installer-for-mac](https://github.com/jikime/oneshot-installer-for-mac)
+  - macOS 환경에서 개발 환경을 자동 구성하는 설치 방식과 스크립트 구조를 참고했습니다.
+
+원본 프로젝트를 공유해주신 앤써니(Anthony Kim / jikime)께 감사드립니다.
+
+본 프로젝트는 위 프로젝트의 아이디어와 구조를 참고하여,
+Claude Code, OpenAI Codex, Gemini CLI 등 AI 개발 도구를 하나의 설치 과정으로 구성하고
+Windows와 macOS 환경에서 쉽게 사용할 수 있도록 확장한 프로젝트입니다.
+
 ## Windows: 처음 설치하기
 
 1. 키보드에서 `Windows 키`를 누르고 **PowerShell**을 검색해 엽니다.
