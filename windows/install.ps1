@@ -1,14 +1,8 @@
 #requires -Version 5.1
 
-
 [CmdletBinding()]
 
 param(
-
-    [ValidateSet('Essential','All','Custom')]
-    [string]$Profile="Essential",
-
-    [string[]]$Tools=@(),
 
     [switch]$SkipPython,
 
@@ -19,11 +13,14 @@ param(
 )
 
 
-$ErrorActionPreference="Continue"
+$ErrorActionPreference = "Continue"
 
 
 
-# npm global ps1 실행 허용
+# ======================================
+# 실행 정책 설정
+# ======================================
+
 try {
 
     $policy = Get-ExecutionPolicy -Scope CurrentUser
@@ -39,7 +36,7 @@ try {
 
 
         Write-Host "PowerShell 실행 정책 설정 완료" `
-        -ForegroundColor Green
+            -ForegroundColor Green
 
     }
 
@@ -47,15 +44,23 @@ try {
 catch {
 
     Write-Host "실행 정책 설정 건너뜀" `
-    -ForegroundColor Yellow
+        -ForegroundColor Yellow
 
 }
 
 
 
+# ======================================
+# 공통 함수
+# ======================================
+
+
 function Write-Step {
 
-    param([string]$Message)
+    param(
+        [string]$Message
+    )
+
 
     Write-Host ""
     Write-Host "== $Message ==" -ForegroundColor Cyan
@@ -67,29 +72,56 @@ function Write-Step {
 function Refresh-Path {
 
 
-    $machine =
+    $machinePath =
     [Environment]::GetEnvironmentVariable(
         "Path",
         "Machine"
     )
 
 
-    $user =
+    $userPath =
     [Environment]::GetEnvironmentVariable(
         "Path",
         "User"
     )
 
 
-    $env:Path="$machine;$user"
+    $env:Path =
+    "$machinePath;$userPath"
 
 
-    $env:Path += ";C:\Program Files\nodejs"
 
-    $env:Path += ";$env:APPDATA\npm"
+    $extraPaths = @(
+
+        "C:\Program Files\nodejs",
+
+        "$env:APPDATA\npm"
+
+    )
+
+
+
+    foreach($path in $extraPaths) {
+
+
+        if(
+            (Test-Path $path) -and
+            ($env:Path -notlike "*$path*")
+        ){
+
+            $env:Path += ";$path"
+
+        }
+
+    }
 
 }
 
+
+
+# ======================================
+# 기본 개발환경 설치
+# ======================================
 
 
 function Install-BaseTools {
@@ -98,22 +130,49 @@ function Install-BaseTools {
     Write-Step "기본 개발 도구 설치"
 
 
+
+    if(!(Get-Command winget -ErrorAction SilentlyContinue)){
+
+
+        Write-Host ""
+        Write-Host "winget을 찾을 수 없습니다." `
+            -ForegroundColor Red
+
+
+        Write-Host `
+        "Windows App Installer를 설치한 후 다시 실행하세요."
+
+
+        exit 1
+
+    }
+
+
+
+    # Git
+
     if(!$SkipGit){
+
 
         if(Get-Command git -ErrorAction SilentlyContinue){
 
-            Write-Host "Git 이미 설치됨" -ForegroundColor Green
+
+            Write-Host "Git 이미 설치됨" `
+                -ForegroundColor Green
+
 
         }
         else {
 
+
             Write-Host "Git 설치"
 
+
             winget install `
-            --id Git.Git `
-            --silent `
-            --accept-package-agreements `
-            --accept-source-agreements
+                --id Git.Git `
+                --silent `
+                --accept-package-agreements `
+                --accept-source-agreements
 
         }
 
@@ -121,9 +180,15 @@ function Install-BaseTools {
 
 
 
+    # Node.js
+
+
     if(Get-Command node.exe -ErrorAction SilentlyContinue){
 
-        Write-Host "Node.js 이미 설치됨" -ForegroundColor Green
+
+        Write-Host "Node.js 이미 설치됨" `
+            -ForegroundColor Green
+
 
     }
     else {
@@ -133,28 +198,44 @@ function Install-BaseTools {
 
 
         winget install `
-        --id OpenJS.NodeJS.LTS `
-        --silent `
-        --accept-package-agreements `
-        --accept-source-agreements
+            --id OpenJS.NodeJS.LTS `
+            --silent `
+            --accept-package-agreements `
+            --accept-source-agreements
 
     }
+
 
 
     Refresh-Path
 
 
 
+    Write-Host ""
+
+
+    if(Get-Command node.exe -ErrorAction SilentlyContinue){
+
+
+        Write-Host "Node 설치 확인 완료" `
+            -ForegroundColor Green
+
+    }
+
+
+
     if(Get-Command npm.cmd -ErrorAction SilentlyContinue){
 
+
         Write-Host "npm 설치 확인 완료" `
-        -ForegroundColor Green
+            -ForegroundColor Green
 
     }
     else {
 
+
         Write-Host "npm 확인 실패" `
-        -ForegroundColor Yellow
+            -ForegroundColor Yellow
 
     }
 
@@ -162,12 +243,19 @@ function Install-BaseTools {
 
 
 
+
+# ======================================
+# AI CLI 선택
+# ======================================
+
+
 function Select-AITools {
 
 
     Write-Host ""
 
-    Write-Host "설치할 AI CLI를 선택하세요." `
+    Write-Host `
+    "설치할 AI CLI를 선택하세요." `
     -ForegroundColor Cyan
 
 
@@ -190,7 +278,7 @@ function Select-AITools {
 
 
 
-    $selected=@()
+    $selected = @()
 
 
 
@@ -202,12 +290,14 @@ function Select-AITools {
 
             "1" {
 
+
                 $selected += "claude"
 
             }
 
 
             "2" {
+
 
                 $selected += "codex"
 
@@ -216,12 +306,14 @@ function Select-AITools {
 
             "3" {
 
+
                 $selected += "gemini"
 
             }
 
 
             "4" {
+
 
                 return @(
                     "claude",
@@ -236,11 +328,19 @@ function Select-AITools {
     }
 
 
+
     if($selected.Count -eq 0){
+
+
+        Write-Host ""
+        Write-Host "잘못된 선택입니다. 다시 입력하세요." `
+            -ForegroundColor Yellow
+
 
         return Select-AITools
 
     }
+
 
 
     return $selected
@@ -249,17 +349,42 @@ function Select-AITools {
 
 
 
+
+
+# ======================================
+# AI CLI 설치
+# ======================================
+
+
 function Install-Claude {
 
 
     Write-Step "Claude Code 설치"
 
 
-    npm.cmd install --global `
-    @anthropic-ai/claude-code
+    Refresh-Path
 
+
+
+    if(Get-Command claude -ErrorAction SilentlyContinue){
+
+
+        Write-Host `
+        "Claude Code 이미 설치됨" `
+        -ForegroundColor Green
+
+
+        return
+
+    }
+
+
+
+    npm.cmd install --global `
+        @anthropic-ai/claude-code
 
 }
+
 
 
 
@@ -269,11 +394,30 @@ function Install-Codex {
     Write-Step "OpenAI Codex 설치"
 
 
-    npm.cmd install --global `
-    @openai/codex
+    Refresh-Path
 
+
+
+    if(Get-Command codex -ErrorAction SilentlyContinue){
+
+
+        Write-Host `
+        "Codex 이미 설치됨" `
+        -ForegroundColor Green
+
+
+        return
+
+    }
+
+
+
+    npm.cmd install --global `
+        @openai/codex
 
 }
+
+
 
 
 
@@ -283,12 +427,36 @@ function Install-Gemini {
     Write-Step "Gemini CLI 설치"
 
 
-    npm.cmd install --global `
-    @google/gemini-cli
+    Refresh-Path
 
+
+
+    if(Get-Command gemini -ErrorAction SilentlyContinue){
+
+
+        Write-Host `
+        "Gemini CLI 이미 설치됨" `
+        -ForegroundColor Green
+
+
+        return
+
+    }
+
+
+
+    npm.cmd install --global `
+        @google/gemini-cli
 
 }
 
+
+
+
+
+# ======================================
+# 실행
+# ======================================
 
 
 Write-Step "OneShot AI 개발환경 시작"
@@ -300,6 +468,8 @@ Install-BaseTools
 
 
 $selected = Select-AITools
+
+
 
 
 
@@ -341,20 +511,40 @@ Refresh-Path
 
 Write-Host ""
 
+Write-Host "============================="
 Write-Host "설치 완료!" `
--ForegroundColor Green
+    -ForegroundColor Green
+Write-Host "============================="
+
 
 
 Write-Host ""
 
-Write-Host "사용 가능한 명령어:" `
--ForegroundColor Cyan
+Write-Host "설치된 AI CLI:" `
+    -ForegroundColor Cyan
 
 
 
 foreach($tool in $selected){
 
-    Write-Host " $tool"
+
+    Write-Host " - $tool"
+
+}
+
+
+
+Write-Host ""
+
+Write-Host "새 PowerShell 창을 열고 아래 명령어로 실행하세요."
+
+Write-Host ""
+
+
+foreach($tool in $selected){
+
+
+    Write-Host $tool
 
 }
 
