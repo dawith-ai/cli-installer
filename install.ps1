@@ -3,15 +3,8 @@
 [CmdletBinding()]
 
 param(
-    [ValidateSet('Essential','All','Custom')]
-    [string]$Profile = "Essential",
-
-    [string[]]$Tools = @(),
-
     [switch]$SkipPython,
-
     [switch]$SkipGit,
-
     [switch]$NoPrompt
 )
 
@@ -21,7 +14,6 @@ $ErrorActionPreference = "Stop"
 
 Write-Host ""
 Write-Host "=== OneShot AI 개발환경 설치 ===" -ForegroundColor Cyan
-Write-Host "Profile : $Profile"
 Write-Host ""
 
 
@@ -47,8 +39,6 @@ try {
     powershell.exe `
         -ExecutionPolicy Bypass `
         -File $tempFile `
-        -Profile $Profile `
-        -Tools $Tools `
         -SkipGit:$SkipGit `
         -SkipPython:$SkipPython `
         -NoPrompt:$NoPrompt
