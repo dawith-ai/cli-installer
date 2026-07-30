@@ -7,6 +7,19 @@ param(
 )
 $ErrorActionPreference = "Continue"
 
+function Ensure-ExecutionPolicy {
+    $current = Get-ExecutionPolicy -Scope CurrentUser
+    if ($current -eq "Restricted" -or $current -eq "Undefined" -or $current -eq "AllSigned") {
+        try {
+            Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
+            Write-Host "실행 정책을 설정했습니다." -ForegroundColor Green
+        }
+        catch {
+            Write-Host "실행 정책 설정에 실패했습니다. 문제가 계속되면 PowerShell을 관리자 권한으로 다시 실행해주세요." -ForegroundColor Yellow
+        }
+    }
+}
+
 function Write-Step {
     param(
         [string]$Message
@@ -156,6 +169,8 @@ function Install-NpmTool {
 
 Write-Step "CLI Installer 시작"
 
+Ensure-ExecutionPolicy
+
 Install-BaseTools
 
 $selected = Select-AITools
@@ -177,6 +192,14 @@ Write-Host "사용 가능한 명령어:" -ForegroundColor Cyan
 
 foreach($tool in $selected){
     Write-Host $tool
+}
+
+Write-Host ""
+
+if(!$NoPrompt){
+    Write-Host "새 창에서 방금 설치한 명령어를 바로 사용할 수 있도록 준비합니다..." -ForegroundColor Cyan
+    Write-Host "(지금 이 창은 닫으셔도 됩니다)" -ForegroundColor Yellow
+    Start-Process powershell.exe -WorkingDirectory $env:USERPROFILE
 }
 
 Write-Host ""
