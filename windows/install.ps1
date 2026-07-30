@@ -60,3 +60,122 @@ function Install-BaseTools {
     if(Test-CommandExists "node"){
         Write-Host "Node.js가 이미 설치되어 있습니다. 건너뜁니다." -ForegroundColor Green
     }
+    else {
+        Write-Host "Node.js 설치 중..."
+        winget install `
+            --id OpenJS.NodeJS.LTS `
+            --silent `
+            --accept-package-agreements `
+            --accept-source-agreements
+        if($LASTEXITCODE -eq 0){
+            Write-Host "Node.js 설치 완료" -ForegroundColor Green
+        }
+        else {
+            Write-Host "Node.js 설치를 완료하지 못했습니다. 나중에 다시 시도해주세요." -ForegroundColor Yellow
+        }
+    }
+
+    Refresh-Path
+
+    if(Test-CommandExists "npm.cmd"){
+        Write-Host "npm 설치 확인 완료" -ForegroundColor Green
+    }
+    else {
+        Write-Host "npm을 아직 찾을 수 없습니다. 설치가 끝난 뒤 새 터미널을 열어 다시 실행해주세요." -ForegroundColor Yellow
+    }
+}
+
+function Select-AITools {
+    if($NoPrompt){
+        if($Tools.Count -gt 0){
+            return $Tools
+        }
+        return @("claude", "codex", "gemini")
+    }
+
+    Write-Host ""
+    Write-Host "설치할 AI CLI를 선택하세요." -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "[1] Claude Code"
+    Write-Host "[2] OpenAI Codex"
+    Write-Host "[3] Gemini CLI"
+    Write-Host "[4] 전체 설치"
+    Write-Host ""
+
+    $choice = Read-Host "선택 (예: 1,2)"
+    $selected = @()
+
+    foreach($item in $choice.Split(",")){
+        switch($item.Trim()){
+            "1" { $selected += "claude" }
+            "2" { $selected += "codex" }
+            "3" { $selected += "gemini" }
+            "4" {
+                return @("claude", "codex", "gemini")
+            }
+        }
+    }
+
+    if($selected.Count -eq 0){
+        Write-Host "잘못된 선택입니다. 다시 입력해주세요." -ForegroundColor Yellow
+        return Select-AITools
+    }
+
+    return $selected
+}
+
+function Install-NpmTool {
+    param(
+        [string]$PackageName,
+        [string]$DisplayName,
+        [string]$Command
+    )
+
+    Write-Step "$DisplayName 설치"
+
+    if(!(Test-CommandExists "npm.cmd")){
+        Write-Host "npm을 찾을 수 없어 $DisplayName 설치를 건너뜁니다. Node.js 설치 후 새 터미널에서 다시 실행해주세요." -ForegroundColor Yellow
+        return
+    }
+
+    if(Test-CommandExists $Command){
+        Write-Host "$DisplayName 가 이미 설치되어 있습니다. 건너뜁니다." -ForegroundColor Green
+        return
+    }
+
+    npm.cmd install -g $PackageName
+
+    if($LASTEXITCODE -eq 0){
+        Write-Host "$DisplayName 설치 완료" -ForegroundColor Green
+    }
+    else {
+        Write-Host "$DisplayName 설치 중 문제가 발생했습니다. 네트워크 상태를 확인한 뒤 다시 시도해주세요." -ForegroundColor Yellow
+    }
+}
+
+Write-Step "CLI Installer 시작"
+
+Install-BaseTools
+
+$selected = Select-AITools
+
+foreach($tool in $selected){
+    switch($tool){
+        "claude" { Install-NpmTool -PackageName "@anthropic-ai/claude-code" -DisplayName "Claude Code" -Command "claude" }
+        "codex"  { Install-NpmTool -PackageName "@openai/codex" -DisplayName "OpenAI Codex" -Command "codex" }
+        "gemini" { Install-NpmTool -PackageName "@google/gemini-cli" -DisplayName "Gemini CLI" -Command "gemini" }
+    }
+}
+
+Refresh-Path
+
+Write-Host ""
+Write-Host "설치 완료!" -ForegroundColor Green
+Write-Host ""
+Write-Host "사용 가능한 명령어:" -ForegroundColor Cyan
+
+foreach($tool in $selected){
+    Write-Host $tool
+}
+
+Write-Host ""
