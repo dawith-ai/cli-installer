@@ -100,22 +100,45 @@ function Install-BaseTools {
 
     if(!$SkipGit){
 
-        winget install `
-        --id Git.Git `
-        --silent `
-        --accept-package-agreements `
-        --accept-source-agreements
+        if(Get-Command git -ErrorAction SilentlyContinue){
+
+            Write-Host "Git 이미 설치됨" -ForegroundColor Green
+
+        }
+        else {
+
+            Write-Host "Git 설치"
+
+            winget install `
+            --id Git.Git `
+            --silent `
+            --accept-package-agreements `
+            --accept-source-agreements
+
+        }
 
     }
 
 
 
-    winget install `
-    --id OpenJS.NodeJS.LTS `
-    --silent `
-    --accept-package-agreements `
-    --accept-source-agreements
+    if(Get-Command node.exe -ErrorAction SilentlyContinue){
 
+        Write-Host "Node.js 이미 설치됨" -ForegroundColor Green
+
+    }
+    else {
+
+
+        Write-Host "Node.js 설치"
+
+
+        winget install `
+        --id OpenJS.NodeJS.LTS `
+        --silent `
+        --accept-package-agreements `
+        --accept-source-agreements
+
+    }
 
 
     Refresh-Path
@@ -126,6 +149,12 @@ function Install-BaseTools {
 
         Write-Host "npm 설치 확인 완료" `
         -ForegroundColor Green
+
+    }
+    else {
+
+        Write-Host "npm 확인 실패" `
+        -ForegroundColor Yellow
 
     }
 
