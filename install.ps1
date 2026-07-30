@@ -24,7 +24,7 @@ Write-Host "Profile : $Profile"
 Write-Host ""
 
 
-$baseUrl = "https://raw.githubusercontent.com/dawith-ai/cli-installer/main/windows"
+$scriptUrl = "https://raw.githubusercontent.com/dawith-ai/cli-installer/main/windows/install.ps1"
 
 
 try {
@@ -32,11 +32,17 @@ try {
     Write-Host "Windows 설치 스크립트 다운로드..." -ForegroundColor Yellow
 
 
-    $script = Invoke-RestMethod `
-        "$baseUrl/install.ps1"
+    $tempFile = Join-Path $env:TEMP "oneshot-windows-install.ps1"
 
 
-    & ([scriptblock]::Create($script)) `
+    Invoke-WebRequest `
+        -Uri $scriptUrl `
+        -OutFile $tempFile
+
+
+    powershell.exe `
+        -ExecutionPolicy Bypass `
+        -File $tempFile `
         -Profile $Profile `
         -Tools $Tools `
         -SkipGit:$SkipGit `
