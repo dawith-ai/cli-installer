@@ -24,29 +24,23 @@ try {
         & $localScript -SkipGit:$SkipGit -NoPrompt:$NoPrompt
     }
     else {
-        Write-Host "Windows 설치 스크립트 다운로드..." -ForegroundColor Yellow
+    Write-Host "Windows 설치 스크립트 다운로드..." -ForegroundColor Yellow
+    # 구형 Windows/.NET에서 TLS 협상 실패(SSL/TLS 보안 채널 오류) 방지
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    $scriptUrl = "https://raw.githubusercontent.com/dawith-ai/cli-installer/main/windows/install.ps1"
+    $webClient = New-Object System.Net.WebClient
+    $webClient.Encoding = [System.Text.Encoding]::UTF8
+    $scriptContent = $webClient.DownloadString($scriptUrl)
+    $tempFile = Join-Path $env:TEMP "cli-installer-windows-install.ps1"
+    # UTF-8 BOM으로 저장 (한글 텍스트 인코딩 깨짐 방지)
+    $utf8WithBom = New-Object System.Text.UTF8Encoding($true)
+    [System.IO.File]::WriteAllText($tempFile, $scriptContent, $utf8WithBom)
 
-        # 구형 Windows/.NET에서 TLS 협상 실패(SSL/TLS 보안 채널 오류) 방지
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    $childArgs = @("-ExecutionPolicy", "Bypass", "-File", $tempFile)
+    if ($SkipGit)   { $childArgs += "-SkipGit" }
+    if ($NoPrompt)  { $childArgs += "-NoPrompt" }
 
-        $scriptUrl = "https://raw.githubusercontent.com/dawith-ai/cli-installer/main/windows/install.ps1"
-
-        $webClient = New-Object System.Net.WebClient
-        $webClient.Encoding = [System.Text.Encoding]::UTF8
-        $scriptContent = $webClient.DownloadString($scriptUrl)
-
-        $tempFile = Join-Path $env:TEMP "cli-installer-windows-install.ps1"
-
-        # UTF-8 BOM으로 저장 (한글 텍스트 인코딩 깨짐 방지)
-        $utf8WithBom = New-Object System.Text.UTF8Encoding($true)
-        [System.IO.File]::WriteAllText($tempFile, $scriptContent, $utf8WithBom)
-
-        powershell.exe `
-            -ExecutionPolicy Bypass `
-            -File $tempFile `
-            -SkipGit:$SkipGit `
-            -NoPrompt:$NoPrompt
-    }
+    & powershell.exe @childArgs
 }
 catch {
     Write-Host ""
