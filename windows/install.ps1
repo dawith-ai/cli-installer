@@ -15,6 +15,11 @@ function Write-Step {
     Write-Host "== $Message ==" -ForegroundColor Cyan
 }
 
+function Test-CommandExists {
+    param([string]$Command)
+    return [bool](Get-Command $Command -ErrorAction SilentlyContinue)
+}
+
 function Refresh-Path {
     $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
     $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
@@ -26,109 +31,32 @@ function Refresh-Path {
 function Install-BaseTools {
     Write-Step "기본 개발 도구 설치"
 
+    if(!(Test-CommandExists "winget")){
+        Write-Host "winget을 찾을 수 없습니다." -ForegroundColor Yellow
+        Write-Host "Microsoft Store에서 '앱 설치 관리자(App Installer)'를 설치한 뒤 다시 실행해주세요." -ForegroundColor Yellow
+        return
+    }
+
     if(!$SkipGit){
-        Write-Host "Git 설치 중..."
-        winget install `
-            --id Git.Git `
-            --silent `
-            --accept-package-agreements `
-            --accept-source-agreements
-    }
-
-    Write-Host "Node.js 설치 중..."
-    winget install `
-        --id OpenJS.NodeJS.LTS `
-        --silent `
-        --accept-package-agreements `
-        --accept-source-agreements
-
-    Refresh-Path
-
-    if(Get-Command npm.cmd -ErrorAction SilentlyContinue){
-        Write-Host "npm 설치 확인 완료" -ForegroundColor Green
-    }
-    else {
-        Write-Host "npm 확인 실패" -ForegroundColor Yellow
-    }
-}
-
-function Select-AITools {
-    if($NoPrompt){
-        if($Tools.Count -gt 0){
-            return $Tools
+        if(Test-CommandExists "git"){
+            Write-Host "Git이 이미 설치되어 있습니다. 건너뜁니다." -ForegroundColor Green
         }
-        return @("claude", "codex", "gemini")
-    }
-
-    Write-Host ""
-    Write-Host "설치할 AI CLI를 선택하세요." -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "[1] Claude Code"
-    Write-Host "[2] OpenAI Codex"
-    Write-Host "[3] Gemini CLI"
-    Write-Host "[4] 전체 설치"
-    Write-Host ""
-
-    $choice = Read-Host "선택 (예: 1,2)"
-    $selected = @()
-
-    foreach($item in $choice.Split(",")){
-        switch($item.Trim()){
-            "1" { $selected += "claude" }
-            "2" { $selected += "codex" }
-            "3" { $selected += "gemini" }
-            "4" {
-                return @("claude", "codex", "gemini")
+        else {
+            Write-Host "Git 설치 중..."
+            winget install `
+                --id Git.Git `
+                --silent `
+                --accept-package-agreements `
+                --accept-source-agreements
+            if($LASTEXITCODE -eq 0){
+                Write-Host "Git 설치 완료" -ForegroundColor Green
+            }
+            else {
+                Write-Host "Git 설치를 완료하지 못했습니다. 나중에 다시 시도해주세요." -ForegroundColor Yellow
             }
         }
     }
 
-    if($selected.Count -eq 0){
-        Write-Host "잘못된 선택입니다."
-        return Select-AITools
+    if(Test-CommandExists "node"){
+        Write-Host "Node.js가 이미 설치되어 있습니다. 건너뜁니다." -ForegroundColor Green
     }
-
-    return $selected
-}
-
-function Install-Claude {
-    Write-Step "Claude Code 설치"
-    npm.cmd install -g @anthropic-ai/claude-code
-}
-
-function Install-Codex {
-    Write-Step "OpenAI Codex 설치"
-    npm.cmd install -g @openai/codex
-}
-
-function Install-Gemini {
-    Write-Step "Gemini CLI 설치"
-    npm.cmd install -g @google/gemini-cli
-}
-
-Write-Step "CLI Installer 시작"
-
-Install-BaseTools
-
-$selected = Select-AITools
-
-foreach($tool in $selected){
-    switch($tool){
-        "claude" { Install-Claude }
-        "codex"  { Install-Codex }
-        "gemini" { Install-Gemini }
-    }
-}
-
-Refresh-Path
-
-Write-Host ""
-Write-Host "설치 완료!" -ForegroundColor Green
-Write-Host ""
-Write-Host "사용 가능한 명령어:" -ForegroundColor Cyan
-
-foreach($tool in $selected){
-    Write-Host $tool
-}
-
-Write-Host ""
