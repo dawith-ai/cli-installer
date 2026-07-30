@@ -2,7 +2,7 @@
 
 새 Windows 또는 macOS 컴퓨터에서 AI 코딩 개발 환경을 빠르게 구성하기 위한 설치 도구입니다.
 
-터미널 사용이 익숙하지 않은 사용자도 한 줄 명령 실행만으로 필요한 개발 환경과 AI CLI 도구를 설치할 수 있도록 구성했습니다.
+터미널 사용이 익숙하지 않은 사용자도 한 줄 명령만 실행하면 개발 환경과 AI CLI 도구를 설치할 수 있도록 구성했습니다.
 
 지원하는 AI CLI:
 
@@ -15,7 +15,7 @@
 
 # ✨ Features
 
-CLI Installer는 운영체제에 맞춰 AI 개발 환경 구성을 자동으로 진행합니다.
+CLI Installer는 운영체제에 맞게 필요한 개발 환경을 자동으로 구성합니다.
 
 
 ## Windows
@@ -25,9 +25,7 @@ CLI Installer는 운영체제에 맞춰 AI 개발 환경 구성을 자동으로 
 - Git
 - Node.js LTS
 - npm
-- Claude Code
-- OpenAI Codex
-- Gemini CLI
+- AI CLI 도구
 
 
 ## macOS
@@ -39,14 +37,12 @@ CLI Installer는 운영체제에 맞춰 AI 개발 환경 구성을 자동으로 
 - Python
 - Git
 - Visual Studio Code
-- Claude Code
-- OpenAI Codex
-- Gemini CLI
+- AI CLI 도구
 
 
-설치 과정에서 사용자가 원하는 AI CLI를 선택할 수 있습니다.
+설치 과정에서 원하는 AI CLI를 선택할 수 있습니다.
 
-여러 개의 AI CLI를 동시에 설치할 수도 있습니다.
+여러 개를 동시에 설치할 수도 있습니다.
 
 예:
 
@@ -56,10 +52,13 @@ CLI Installer는 운영체제에 맞춰 AI 개발 환경 구성을 자동으로 
 
 입력 시:
 
-- Claude Code
-- OpenAI Codex
+```
+Claude Code
+OpenAI Codex
+```
 
-두 가지가 함께 설치됩니다.
+두 개가 함께 설치됩니다.
+
 
 ---
 
@@ -81,7 +80,7 @@ Windows 환경에서 개발 도구를 자동 설치하는 방식과 설치 흐�
 https://github.com/jikime/oneshot-installer-for-mac
 
 
-macOS 환경에서 Homebrew 기반 개발 환경을 구성하는 방식을 참고했습니다.
+macOS 환경에서 Homebrew 기반으로 개발 환경을 구성하는 방식을 참고했습니다.
 
 
 원본 프로젝트를 공유해주신  
@@ -95,6 +94,7 @@ macOS 환경에서 Homebrew 기반 개발 환경을 구성하는 방식을 참�
 - Gemini CLI
 
 를 하나의 설치 과정으로 구성하고 Windows와 macOS 환경에서 쉽게 사용할 수 있도록 확장했습니다.
+
 
 ---
 
@@ -114,23 +114,17 @@ irm https://raw.githubusercontent.com/dawith-ai/cli-installer/main/install.ps1 |
 ```
 
 
-설치 과정에서:
+설치가 시작되면:
 
-1. Git 설치
-2. Node.js 설치
-3. npm 환경 설정
-4. AI CLI 선택
+1. Git 설치 확인
+2. Node.js 설치 확인
+3. AI CLI 선택 메뉴 표시
+4. 선택한 CLI 설치
 
 순서로 진행됩니다.
 
 
----
-
-# Windows AI CLI 선택
-
-
-설치 중 아래 화면이 표시됩니다.
-
+설치 화면 예:
 
 ```
 설치할 AI CLI를 선택하세요.
@@ -140,73 +134,23 @@ irm https://raw.githubusercontent.com/dawith-ai/cli-installer/main/install.ps1 |
 [3] Gemini CLI
 [4] 전체 설치
 
-선택:
+선택 (예: 1,2):
 ```
 
 
-## Claude Code 설치
-
-입력:
-
-```
-1
-```
-
-
-## OpenAI Codex 설치
-
-입력:
-
-```
-2
-```
-
-
-## Gemini CLI 설치
-
-입력:
-
-```
-3
-```
-
-
-## Claude + Codex 설치
-
-입력:
+입력 예:
 
 ```
 1,2
 ```
 
 
-## 전체 설치
-
-입력:
+결과:
 
 ```
-4
+Claude Code 설치
+OpenAI Codex 설치
 ```
-
-
-설치 완료 후 설치한 CLI 명령어를 바로 사용할 수 있습니다.
-
-예:
-
-```powershell
-claude
-```
-
-```powershell
-codex
-```
-
-```powershell
-gemini
-```
-
-
-처음 실행 시 각 서비스 로그인 과정이 진행될 수 있습니다.
 
 
 ---
@@ -233,13 +177,7 @@ curl -fsSL https://raw.githubusercontent.com/dawith-ai/cli-installer/main/macos/
 4. 선택한 CLI 설치
 
 
----
-
-# macOS AI CLI 선택
-
-
-설치 과정에서 아래 메뉴가 표시됩니다.
-
+선택 화면:
 
 ```
 설치할 AI CLI를 선택하세요.
@@ -248,25 +186,24 @@ curl -fsSL https://raw.githubusercontent.com/dawith-ai/cli-installer/main/macos/
 [2] OpenAI Codex
 [3] Gemini CLI
 [4] 전체 설치
-
-선택:
 ```
 
 
-여러 개 설치하려면 쉼표로 입력합니다.
-
-
-예:
+여러 개 선택:
 
 ```
-1,2
+1,3
 ```
 
 
 결과:
 
-- Claude Code 설치
-- OpenAI Codex 설치
+```
+Claude Code
+Gemini CLI
+```
+
+설치
 
 
 ---
@@ -274,7 +211,7 @@ curl -fsSL https://raw.githubusercontent.com/dawith-ai/cli-installer/main/macos/
 # 🛠 설치 후 사용
 
 
-설치 완료 후 터미널에서 실행합니다.
+설치 완료 후 새 터미널을 열어 실행합니다.
 
 
 ## Claude Code
@@ -298,17 +235,28 @@ gemini
 ```
 
 
-처음 실행 시 서비스 로그인 과정이 필요할 수 있습니다.
+처음 실행 시 각 서비스 로그인 과정이 진행될 수 있습니다.
+
 
 ---
 
 # 🗑 설치 제거
 
 
-## AI CLI 제거
+## AI CLI만 제거
 
-Windows / macOS 공통:
 
+### Windows PowerShell
+
+PowerShell에서는 npm 실행 정책 문제를 방지하기 위해 `npm.cmd` 사용을 권장합니다.
+
+
+```powershell
+npm.cmd uninstall -g @anthropic-ai/claude-code @openai/codex @google/gemini-cli
+```
+
+
+### macOS Terminal
 
 ```bash
 npm uninstall -g @anthropic-ai/claude-code @openai/codex @google/gemini-cli
@@ -324,12 +272,18 @@ PowerShell:
 
 
 ```powershell
-npm uninstall -g @anthropic-ai/claude-code @openai/codex @google/gemini-cli
+npm.cmd uninstall -g @anthropic-ai/claude-code @openai/codex @google/gemini-cli
 
 winget uninstall OpenJS.NodeJS.LTS
 
 winget uninstall Git.Git
+```
 
+
+Visual Studio Code를 설치했다면:
+
+
+```powershell
 winget uninstall Microsoft.VisualStudioCode
 ```
 
@@ -339,7 +293,7 @@ winget uninstall Microsoft.VisualStudioCode
 # macOS 전체 제거
 
 
-터미널:
+Terminal:
 
 
 ```bash
@@ -353,39 +307,10 @@ brew uninstall --cask visual-studio-code
 
 ---
 
-# 🧪 설치 확인
-
-
-설치 후 아래 명령으로 확인할 수 있습니다.
-
-
-Claude Code:
-
-```bash
-claude --version
-```
-
-
-OpenAI Codex:
-
-```bash
-codex --version
-```
-
-
-Gemini CLI:
-
-```bash
-gemini --version
-```
-
-
----
-
 # 🧪 로컬에서 실행하기
 
 
-저장소를 직접 내려받아 실행할 수 있습니다.
+저장소를 내려받습니다.
 
 
 ```bash
@@ -430,11 +355,11 @@ cli-installer
 │
 ├── windows
 │   └── install.ps1
-│       Windows 설치 스크립트
+│       Windows 설치 및 AI CLI 선택 설치
 │
 ├── macos
 │   └── install.sh
-│       macOS 설치 스크립트
+│       macOS 설치 및 AI CLI 선택 설치
 │
 └── README.md
 ```
@@ -445,13 +370,13 @@ cli-installer
 # 🔐 보안 안내
 
 
-CLI Installer는 GitHub에서 설치 스크립트를 받아 실행하는 방식입니다.
+CLI Installer는 GitHub에서 설치 스크립트를 받아 실행합니다.
 
 
-실행 전 저장소 코드를 확인하는 것을 권장합니다.
+실행 전에 저장소 코드를 확인하는 것을 권장합니다.
 
 
-직접 확인 후 실행:
+로컬 실행:
 
 
 ```bash
@@ -461,18 +386,7 @@ cd cli-installer
 ```
 
 
-Windows:
-
-```powershell
-.\install.ps1
-```
-
-
-macOS:
-
-```bash
-./macos/install.sh
-```
+직접 코드를 확인한 후 실행할 수 있습니다.
 
 
 ---
@@ -484,12 +398,12 @@ macOS:
 
 
 1. npm 패키지 확인
-2. Windows 설치 코드 추가
-3. macOS 설치 코드 추가
-4. 선택 메뉴 추가
+2. Windows 설치 함수 추가
+3. macOS 설치 함수 추가
+4. 선택 메뉴 항목 추가
 
 
-동일한 구조로 새로운 AI 개발 도구를 쉽게 확장할 수 있습니다.
+동일한 구조로 새로운 CLI 도구를 확장할 수 있습니다.
 
 
 ---
@@ -500,10 +414,10 @@ macOS:
 AI 코딩 도구를 처음 사용하는 사용자가:
 
 
+- 개발 환경 설치
 - Node.js 설치
 - Git 설치
-- 개발 환경 설정
-- AI CLI 설치
+- CLI 설치
 - 초기 설정
 
 
