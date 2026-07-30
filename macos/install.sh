@@ -1,53 +1,180 @@
 #!/usr/bin/env bash
+
 set -euo pipefail
 
-PROFILE="${1:-essential}"
-TOOLS="${2:-}"
 
-say_step() { printf '\n\033[36m%s\033[0m\n' "$1"; }
-has() { command -v "$1" >/dev/null 2>&1; }
-install_npm() {
-  local package="$1" name="$2" command="$3"
-  if has "$command"; then printf '  Skip  %s is already installed.\n' "$name"; return; fi
-  npm install --global "$package"
-  printf '  OK    %s installed.\n' "$name"
+say_step() {
+  printf "\n\033[36m== %s ==\033[0m\n" "$1"
 }
 
-if ! has brew; then
-  say_step "Installing Homebrew"
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
 
-# Homebrew is /opt/homebrew on Apple Silicon and /usr/local on Intel Macs.
-# Load it in this shell as well, so the remaining commands work right away.
-if ! has brew && [ -x /opt/homebrew/bin/brew ]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-elif ! has brew && [ -x /usr/local/bin/brew ]; then
-  eval "$(/usr/local/bin/brew shellenv)"
-fi
-has brew || { echo "Homebrew could not be started. Open a new Terminal window and run this script again."; exit 1; }
+has() {
+  command -v "$1" >/dev/null 2>&1
+}
 
-say_step "Installing base developer tools"
-brew install node python git
-brew install --cask visual-studio-code
 
-case "$PROFILE" in
-  essential) selected=(claude codex) ;;
-  all) selected=(claude codex gemini) ;;
-  custom)
-    [ -n "$TOOLS" ] || { echo "For custom: ./install.sh custom claude,codex"; exit 2; }
-    IFS=',' read -r -a selected <<< "$TOOLS"
-    ;;
-  *) echo "Usage: ./install.sh [essential|all|custom] [claude,codex,gemini]"; exit 2 ;;
+install_npm() {
+
+  local package="$1"
+  local name="$2"
+  local command="$3"
+
+
+  if has "$command"; then
+    printf "  Skip %s already installed.\n" "$name"
+    return
+  fi
+
+
+  npm install --global "$package"
+
+  printf "  OK %s installed.\n" "$name"
+
+}
+
+
+select_tools() {
+
+echo ""
+
+echo "설치할 AI CLI를 선택하세요."
+
+echo ""
+
+echo "[1] Claude Code"
+echo "[2] OpenAI Codex"
+echo "[3] Gemini CLI"
+echo "[4] 전체 설치"
+
+echo ""
+
+read -p "선택 (1-4): " choice
+
+
+case "$choice" in
+
+1)
+  selected=("claude")
+  ;;
+
+2)
+  selected=("codex")
+  ;;
+
+3)
+  selected=("gemini")
+  ;;
+
+4)
+  selected=("claude" "codex" "gemini")
+  ;;
+
+*)
+  echo "잘못된 선택입니다."
+  select_tools
+  ;;
+
 esac
 
+}
+
+
+
+if ! has brew; then
+
+say_step "Installing Homebrew"
+
+ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+fi
+
+
+
+if ! has brew && [ -x /opt/homebrew/bin/brew ]; then
+
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+elif ! has brew && [ -x /usr/local/bin/brew ]; then
+
+eval "$(/usr/local/bin/brew shellenv)"
+
+fi
+
+
+
+has brew || {
+
+echo "Homebrew 설치 실패"
+
+exit 1
+
+}
+
+
+
+say_step "Installing base developer tools"
+
+
+brew install node python git
+
+
+brew install --cask visual-studio-code
+
+
+
+select_tools
+
+
+
 for tool in "${selected[@]}"; do
-  case "$tool" in
-    claude) install_npm '@anthropic-ai/claude-code' 'Claude Code' 'claude' ;;
-    codex) install_npm '@openai/codex' 'OpenAI Codex' 'codex' ;;
-    gemini) install_npm '@google/gemini-cli' 'Gemini CLI' 'gemini' ;;
-    *) echo "Unsupported tool: $tool"; exit 2 ;;
-  esac
+
+
+case "$tool" in
+
+
+claude)
+
+install_npm \
+"@anthropic-ai/claude-code" \
+"Claude Code" \
+"claude"
+
+;;
+
+
+codex)
+
+install_npm \
+"@openai/codex" \
+"OpenAI Codex" \
+"codex"
+
+;;
+
+
+gemini)
+
+install_npm \
+"@google/gemini-cli" \
+"Gemini CLI" \
+"gemini"
+
+;;
+
+
+esac
+
+
 done
 
-printf '\nDone. Start with: codex, claude, or gemini\n'
+
+
+printf "\n설치 완료\n"
+
+printf "사용 가능 명령어:\n"
+
+printf " claude\n"
+
+printf " codex\n"
+
+printf " gemini\n"
