@@ -93,35 +93,36 @@ function Select-AITools {
         return @("claude", "codex", "gemini")
     }
 
-    Write-Host ""
-    Write-Host "설치할 AI CLI를 선택하세요." -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "[1] Claude Code"
-    Write-Host "[2] OpenAI Codex"
-    Write-Host "[3] Gemini CLI"
-    Write-Host "[4] 전체 설치"
-    Write-Host ""
+    while($true){
+        Write-Host ""
+        Write-Host "설치할 AI CLI를 선택하세요." -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "[1] Claude Code"
+        Write-Host "[2] OpenAI Codex"
+        Write-Host "[3] Gemini CLI"
+        Write-Host "[4] 전체 설치"
+        Write-Host ""
 
-    $choice = Read-Host "선택 (예: 1,2)"
-    $selected = @()
+        $choice = Read-Host "선택 (예: 1,2)"
+        $selected = @()
 
-    foreach($item in $choice.Split(",")){
-        switch($item.Trim()){
-            "1" { $selected += "claude" }
-            "2" { $selected += "codex" }
-            "3" { $selected += "gemini" }
-            "4" {
-                return @("claude", "codex", "gemini")
+        foreach($item in $choice.Split(",")){
+            switch($item.Trim()){
+                "1" { $selected += "claude" }
+                "2" { $selected += "codex" }
+                "3" { $selected += "gemini" }
+                "4" {
+                    return @("claude", "codex", "gemini")
+                }
             }
         }
-    }
 
-    if($selected.Count -eq 0){
+        if($selected.Count -gt 0){
+            return $selected
+        }
+
         Write-Host "잘못된 선택입니다. 다시 입력해주세요." -ForegroundColor Yellow
-        return Select-AITools
     }
-
-    return $selected
 }
 
 function Install-NpmTool {
@@ -139,7 +140,7 @@ function Install-NpmTool {
     }
 
     if(Test-CommandExists $Command){
-        Write-Host "$DisplayName 가 이미 설치되어 있습니다. 건너뜁니다." -ForegroundColor Green
+        Write-Host "$DisplayName가 이미 설치되어 있습니다. 건너뜁니다." -ForegroundColor Green
         return
     }
 
