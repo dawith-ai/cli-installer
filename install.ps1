@@ -1,8 +1,9 @@
 #requires -Version 5.1
 
 [CmdletBinding()]
+
 param(
-    [ValidateSet('Essential', 'All', 'Custom')]
+    [ValidateSet('Essential','All','Custom')]
     [string]$Profile = "Essential",
 
     [string[]]$Tools = @(),
@@ -32,20 +33,10 @@ try {
     Write-Host "Windows 설치 스크립트 다운로드..." -ForegroundColor Yellow
 
 
-    $tempFile = Join-Path $env:TEMP "oneshot-windows-install.ps1"
+    $script = Invoke-RestMethod $scriptUrl
 
 
-    Invoke-WebRequest `
-        -Uri $scriptUrl `
-        -OutFile $tempFile
-
-
-    & $tempFile `
-    -Profile $Profile `
-    -Tools $Tools `
-    -SkipGit:$SkipGit `
-    -SkipPython:$SkipPython `
-    -NoPrompt:$NoPrompt
+    Invoke-Expression $script
 
 
 }
