@@ -4,115 +4,75 @@ set -euo pipefail
 
 
 say_step() {
-  printf "\n\033[36m== %s ==\033[0m\n" "$1"
+    printf "\n\033[36m== %s ==\033[0m\n" "$1"
 }
 
 
 has() {
-  command -v "$1" >/dev/null 2>&1
+    command -v "$1" >/dev/null 2>&1
 }
 
 
 install_npm() {
 
-  local package="$1"
-  local name="$2"
-  local command="$3"
+    PACKAGE=$1
+    NAME=$2
+    COMMAND=$3
 
 
-  if has "$command"; then
-    printf "  Skip %s already installed.\n" "$name"
-    return
-  fi
+    if has "$COMMAND"; then
 
+        echo "Skip $NAME already installed."
 
-  npm install --global "$package"
+    else
 
-  printf "  OK %s installed.\n" "$name"
+        npm install --global "$PACKAGE"
 
-}
+        echo "$NAME installed."
 
-
-select_tools() {
-
-echo ""
-
-echo "설치할 AI CLI를 선택하세요."
-
-echo ""
-
-echo "[1] Claude Code"
-echo "[2] OpenAI Codex"
-echo "[3] Gemini CLI"
-echo "[4] 전체 설치"
-
-echo ""
-
-read -p "선택 (1-4): " choice
-
-
-case "$choice" in
-
-1)
-  selected=("claude")
-  ;;
-
-2)
-  selected=("codex")
-  ;;
-
-3)
-  selected=("gemini")
-  ;;
-
-4)
-  selected=("claude" "codex" "gemini")
-  ;;
-
-*)
-  echo "잘못된 선택입니다."
-  select_tools
-  ;;
-
-esac
+    fi
 
 }
 
 
+
+say_step "OneShot AI 개발환경 설치"
+
+
+
+# Homebrew 설치
 
 if ! has brew; then
 
-say_step "Installing Homebrew"
+    say_step "Homebrew 설치"
 
- /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-fi
-
-
-
-if ! has brew && [ -x /opt/homebrew/bin/brew ]; then
-
-eval "$(/opt/homebrew/bin/brew shellenv)"
-
-elif ! has brew && [ -x /usr/local/bin/brew ]; then
-
-eval "$(/usr/local/bin/brew shellenv)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 fi
 
 
 
-has brew || {
+# Apple Silicon
 
-echo "Homebrew 설치 실패"
+if [ -x "/opt/homebrew/bin/brew" ]; then
 
-exit 1
+    eval "$(/opt/homebrew/bin/brew shellenv)"
 
-}
+fi
 
 
 
-say_step "Installing base developer tools"
+# Intel Mac
+
+if [ -x "/usr/local/bin/brew" ]; then
+
+    eval "$(/usr/local/bin/brew shellenv)"
+
+fi
+
+
+
+say_step "기본 개발환경 설치"
 
 
 brew install node python git
@@ -122,14 +82,74 @@ brew install --cask visual-studio-code
 
 
 
-select_tools
+echo ""
+
+echo "설치할 AI CLI를 선택하세요."
+
+echo ""
+
+echo "[1] Claude Code"
+
+echo "[2] OpenAI Codex"
+
+echo "[3] Gemini CLI"
+
+echo "[4] 전체 설치"
+
+echo ""
+
+
+read -p "선택 (1-4): " choice
+
+
+
+case $choice in
+
+
+1)
+
+selected=("claude")
+
+;;
+
+
+2)
+
+selected=("codex")
+
+;;
+
+
+3)
+
+selected=("gemini")
+
+;;
+
+
+4)
+
+selected=("claude" "codex" "gemini")
+
+;;
+
+
+*)
+
+echo "잘못된 선택입니다."
+
+exit 1
+
+;;
+
+esac
 
 
 
 for tool in "${selected[@]}"; do
 
 
-case "$tool" in
+case $tool in
 
 
 claude)
@@ -169,12 +189,17 @@ done
 
 
 
-printf "\n설치 완료\n"
+echo ""
 
-printf "사용 가능 명령어:\n"
+echo "설치 완료!"
 
-printf " claude\n"
+echo ""
 
-printf " codex\n"
+echo "사용 가능한 명령어:"
 
-printf " gemini\n"
+
+for tool in "${selected[@]}"; do
+
+echo " $tool"
+
+done
