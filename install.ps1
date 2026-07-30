@@ -5,11 +5,9 @@ param(
     [switch]$NoPrompt
 )
 $ErrorActionPreference = "Stop"
-
 Write-Host ""
 Write-Host "=== CLI Installer 설치 ===" -ForegroundColor Cyan
 Write-Host ""
-
 try {
     $localScript = $null
     if($PSScriptRoot){
@@ -18,36 +16,39 @@ try {
             $localScript = $candidate
         }
     }
-
     if($localScript){
         Write-Host "로컬 저장소의 설치 스크립트를 사용합니다." -ForegroundColor Yellow
         & $localScript -SkipGit:$SkipGit -NoPrompt:$NoPrompt
     }
     else {
-    Write-Host "Windows 설치 스크립트 다운로드..." -ForegroundColor Yellow
-    # 구형 Windows/.NET에서 TLS 협상 실패(SSL/TLS 보안 채널 오류) 방지
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    $scriptUrl = "https://raw.githubusercontent.com/dawith-ai/cli-installer/main/windows/install.ps1"
-    $webClient = New-Object System.Net.WebClient
-    $webClient.Encoding = [System.Text.Encoding]::UTF8
-    $scriptContent = $webClient.DownloadString($scriptUrl)
-    $tempFile = Join-Path $env:TEMP "cli-installer-windows-install.ps1"
-    # UTF-8 BOM으로 저장 (한글 텍스트 인코딩 깨짐 방지)
-    $utf8WithBom = New-Object System.Text.UTF8Encoding($true)
-    [System.IO.File]::WriteAllText($tempFile, $scriptContent, $utf8WithBom)
+        Write-Host "Windows 설치 스크립트 다운로드..." -ForegroundColor Yellow
+        # 구형 Windows/.NET에서 TLS 협상 실패(SSL/TLS 보안 채널 오류) 방지
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        $scriptUrl = "https://raw.githubusercontent.com/dawith-ai/cli-installer/main/windows/install.ps1"
+        $webClient = New-Object System.Net.WebClient
+        $webClient.Encoding = [System.Text.Encoding]::UTF8
+        $scriptContent = $webClient.DownloadString($scriptUrl)
+        $tempFile = Join-Path $env:TEMP "cli-installer-windows-install.ps1"
+        # UTF-8 BOM으로 저장 (한글 텍스트 인코딩 깨짐 방지)
+        $utf8WithBom = New-Object System.Text.UTF8Encoding($true)
+        [System.IO.File]::WriteAllText($tempFile, $scriptContent, $utf8WithBom)
 
-    $childArgs = @("-ExecutionPolicy", "Bypass", "-File", $tempFile)
-    if ($SkipGit)   { $childArgs += "-SkipGit" }
-    if ($NoPrompt)  { $childArgs += "-NoPrompt" }
+        # 스위치 파라미터는 값이 켜져 있을 때만 인자로 추가한다.
+        # (powershell.exe -File 로 새 프로세스를 띄울 때 "-SkipGit:$SkipGit" 형태로
+        #  콜론+변수를 그대로 넘기면, 자식 프로세스의 파라미터 바인더가
+        #  SwitchParameter로 변환하지 못해 오류가 발생한다)
+        $childArgs = @("-ExecutionPolicy", "Bypass", "-File", $tempFile)
+        if ($SkipGit)  { $childArgs += "-SkipGit" }
+        if ($NoPrompt) { $childArgs += "-NoPrompt" }
 
-    & powershell.exe @childArgs
+        & powershell.exe @childArgs
+    }
 }
 catch {
     Write-Host ""
     Write-Host "설치 실패" -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
 }
-
 Write-Host ""
 Write-Host "설치 과정 종료" -ForegroundColor Green
 Write-Host ""
