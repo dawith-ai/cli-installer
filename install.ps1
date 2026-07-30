@@ -26,6 +26,9 @@ try {
     else {
         Write-Host "Windows 설치 스크립트 다운로드..." -ForegroundColor Yellow
 
+        # 구형 Windows/.NET에서 TLS 협상 실패(SSL/TLS 보안 채널 오류) 방지
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
         $scriptUrl = "https://raw.githubusercontent.com/dawith-ai/cli-installer/main/windows/install.ps1"
 
         $webClient = New-Object System.Net.WebClient
