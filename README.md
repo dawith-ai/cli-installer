@@ -1,4 +1,4 @@
-# OneShot AI Developer Setup
+# Cli-installer Developer Setup
 
 새 Windows 또는 macOS 컴퓨터에서 AI 코딩 환경을 한 번에 준비합니다. 터미널이 처음이어도 아래 명령 한 줄만 실행하면 됩니다.
 
