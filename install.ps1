@@ -3,7 +3,7 @@
 [CmdletBinding()]
 param(
     [ValidateSet('Essential', 'All', 'Custom')]
-    [string]$Profile = 'Essential',
+    [string]$Profile = "Essential",
 
     [string[]]$Tools = @(),
 
@@ -14,32 +14,28 @@ param(
     [switch]$NoPrompt
 )
 
+
 $ErrorActionPreference = "Stop"
+
 
 Write-Host ""
 Write-Host "=== OneShot AI 개발환경 설치 ===" -ForegroundColor Cyan
-Write-Host "Profile: $Profile"
+Write-Host "Profile : $Profile"
 Write-Host ""
 
-$sourceBase = "https://raw.githubusercontent.com/dawith-ai/cli-installer/main"
+
+$baseUrl = "https://raw.githubusercontent.com/dawith-ai/cli-installer/main/windows"
+
 
 try {
 
-    Write-Host "설치 스크립트를 불러오는 중..." -ForegroundColor Yellow
+    Write-Host "Windows 설치 스크립트 다운로드..." -ForegroundColor Yellow
 
-    $installScript = Invoke-RestMethod `
-        -Uri "$sourceBase/windows/install.ps1" `
-        -ErrorAction Stop
 
-    Write-Host "Windows 설치 시작..." -ForegroundColor Green
-    Write-Host ""
+    Invoke-RestMethod `
+        "$baseUrl/install.ps1" |
+        Invoke-Expression
 
-    & ([scriptblock]::Create($installScript)) `
-        -Profile $Profile `
-        -Tools $Tools `
-        -SkipPython:$SkipPython `
-        -SkipGit:$SkipGit `
-        -NoPrompt:$NoPrompt
 
 }
 catch {
@@ -51,10 +47,10 @@ catch {
     exit 1
 }
 
+
 Write-Host ""
-Write-Host "설치가 완료되었습니다." -ForegroundColor Green
+Write-Host "설치 완료!" -ForegroundColor Green
 Write-Host ""
-Write-Host "새 프로젝트 폴더에서 아래 명령어로 시작하세요." -ForegroundColor Cyan
-Write-Host ""
+Write-Host "사용 가능한 명령어:"
 Write-Host "  claude"
 Write-Host "  codex"
