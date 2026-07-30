@@ -65,7 +65,46 @@ function Refresh-Path {
 
 }
 
+function Select-AITools {
 
+    Write-Host ""
+    Write-Host "설치할 AI CLI를 선택하세요." -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "[1] Claude Code"
+    Write-Host "[2] OpenAI Codex"
+    Write-Host "[3] Gemini CLI"
+    Write-Host "[4] 전체 설치"
+    Write-Host ""
+
+    $choice = Read-Host "선택 (1-4)"
+
+
+    switch ($choice) {
+
+        "1" {
+            return @("claude")
+        }
+
+        "2" {
+            return @("codex")
+        }
+
+        "3" {
+            return @("gemini")
+        }
+
+        "4" {
+            return @("claude","codex","gemini")
+        }
+
+        default {
+
+            Write-Host "잘못된 선택입니다."
+            return Select-AITools
+
+        }
+    }
+}
 
 function Install-BaseTools {
 
@@ -188,10 +227,27 @@ Write-Step "OneShot AI 개발환경 시작"
 Install-BaseTools
 
 
-Install-Claude
+$selectedTools = Select-AITools
 
 
-Install-Codex
+foreach ($tool in $selectedTools) {
+
+    switch ($tool) {
+
+        "claude" {
+            Install-Claude
+        }
+
+        "codex" {
+            Install-Codex
+        }
+
+        "gemini" {
+            Install-Gemini
+        }
+
+    }
+}
 
 
 
