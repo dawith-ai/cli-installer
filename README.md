@@ -98,6 +98,15 @@ macOS 환경에서 Homebrew 기반으로 개발 환경을 구성하는 방식을
 
 Windows PowerShell을 실행합니다.
 
+### PowerShell 여는 법
+
+다음 중 편한 방법을 사용하세요.
+
+- **단축키**: `Win + X` 를 누른 뒤 **"Windows PowerShell"** 또는 **"터미널"** 선택
+- **검색으로 열기**: `Win` 키를 누르고 `PowerShell` 입력 → Enter
+- **실행 창으로 열기**: `Win + R` → `powershell` 입력 → Enter
+- **탐색기 경로**: `시작 메뉴` → `Windows PowerShell` 폴더 안에서 실행
+
 
 아래 명령어를 그대로 붙여넣습니다.
 
@@ -155,6 +164,14 @@ irm https://raw.githubusercontent.com/dawith-ai/cli-installer/main/install.ps1 |
 
 
 터미널을 실행합니다.
+
+### 터미널 여는 법
+
+다음 중 편한 방법을 사용하세요.
+
+- **단축키(Spotlight)**: `Cmd + Space` → `터미널` 또는 `Terminal` 입력 → Enter
+- **Finder 경로**: `Finder` → `응용 프로그램(Applications)` → `유틸리티(Utilities)` → `터미널(Terminal)`
+- **Launchpad**: `Launchpad` 실행 → `기타(Other)` 폴더 → `터미널`
 
 
 아래 명령어를 실행합니다.
