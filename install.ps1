@@ -40,14 +40,12 @@ try {
         -OutFile $tempFile
 
 
-    powershell.exe `
-        -ExecutionPolicy Bypass `
-        -File $tempFile `
-        -Profile $Profile `
-        -Tools $Tools `
-        -SkipGit:$SkipGit `
-        -SkipPython:$SkipPython `
-        -NoPrompt:$NoPrompt
+    & $tempFile `
+    -Profile $Profile `
+    -Tools $Tools `
+    -SkipGit:$SkipGit `
+    -SkipPython:$SkipPython `
+    -NoPrompt:$NoPrompt
 
 
 }
