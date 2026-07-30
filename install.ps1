@@ -32,9 +32,16 @@ try {
     Write-Host "Windows 설치 스크립트 다운로드..." -ForegroundColor Yellow
 
 
-    Invoke-RestMethod `
-        "$baseUrl/install.ps1" |
-        Invoke-Expression
+    $script = Invoke-RestMethod `
+        "$baseUrl/install.ps1"
+
+
+    & ([scriptblock]::Create($script)) `
+        -Profile $Profile `
+        -Tools $Tools `
+        -SkipGit:$SkipGit `
+        -SkipPython:$SkipPython `
+        -NoPrompt:$NoPrompt
 
 
 }
@@ -44,13 +51,9 @@ catch {
     Write-Host "설치 실패" -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
 
-    exit 1
 }
 
 
 Write-Host ""
-Write-Host "설치 완료!" -ForegroundColor Green
+Write-Host "설치 과정 종료" -ForegroundColor Green
 Write-Host ""
-Write-Host "사용 가능한 명령어:"
-Write-Host "  claude"
-Write-Host "  codex"
