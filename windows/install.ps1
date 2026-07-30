@@ -1,19 +1,13 @@
 #requires -Version 5.1
 
-[CmdletBinding()]
 
 param(
 
-    [ValidateSet('Essential','All','Custom')]
     [string]$Profile = "Essential",
 
     [string[]]$Tools = @(),
 
-    [switch]$SkipPython,
-
-    [switch]$SkipGit,
-
-    [switch]$NoPrompt
+    [switch]$SkipGit
 
 )
 
@@ -27,7 +21,6 @@ function Write-Step {
     param(
         [string]$Message
     )
-
 
     Write-Host ""
     Write-Host "== $Message ==" -ForegroundColor Cyan
@@ -56,21 +49,8 @@ function Refresh-Path {
     $env:Path="$machine;$user"
 
 
-    $extra=@(
-        "C:\Program Files\nodejs",
-        "$env:APPDATA\npm"
-    )
-
-
-    foreach($p in $extra){
-
-        if(Test-Path $p){
-
-            $env:Path += ";$p"
-
-        }
-
-    }
+    $env:Path += ";C:\Program Files\nodejs"
+    $env:Path += ";$env:APPDATA\npm"
 
 }
 
@@ -82,16 +62,18 @@ function Install-BaseTools {
     Write-Step "기본 개발 도구 설치"
 
 
+
     if(!$SkipGit){
+
 
         Write-Host "Git 설치"
 
 
-        winget install `
-        --id Git.Git `
+        winget install Git.Git `
         --silent `
         --accept-package-agreements `
         --accept-source-agreements
+
 
     }
 
@@ -100,8 +82,7 @@ function Install-BaseTools {
     Write-Host "Node.js 설치"
 
 
-    winget install `
-    --id OpenJS.NodeJS.LTS `
+    winget install OpenJS.NodeJS.LTS `
     --silent `
     --accept-package-agreements `
     --accept-source-agreements
@@ -112,13 +93,12 @@ function Install-BaseTools {
 
 
 
-    Write-Host ""
-
     if(Get-Command node.exe -ErrorAction SilentlyContinue){
 
         Write-Host "Node 설치 확인 완료" -ForegroundColor Green
 
     }
+
 
 
     if(Get-Command npm.cmd -ErrorAction SilentlyContinue){
@@ -157,31 +137,30 @@ function Select-AITools {
 
     switch($choice){
 
-        "1" {
-            return @("claude")
-        }
+
+        "1" { return @("claude") }
 
 
-        "2" {
-            return @("codex")
-        }
+        "2" { return @("codex") }
 
 
-        "3" {
-            return @("gemini")
-        }
+        "3" { return @("gemini") }
 
 
         "4" {
+
             return @(
                 "claude",
                 "codex",
                 "gemini"
             )
+
         }
 
 
         default {
+
+            Write-Host "다시 선택해주세요."
 
             return Select-AITools
 
@@ -199,10 +178,8 @@ function Install-Claude {
     Write-Step "Claude Code 설치"
 
 
-    Refresh-Path
-
-
     npm.cmd install --global @anthropic-ai/claude-code
+
 
 }
 
@@ -214,10 +191,8 @@ function Install-Codex {
     Write-Step "OpenAI Codex 설치"
 
 
-    Refresh-Path
-
-
     npm.cmd install --global @openai/codex
+
 
 }
 
@@ -229,10 +204,8 @@ function Install-Gemini {
     Write-Step "Gemini CLI 설치"
 
 
-    Refresh-Path
-
-
     npm.cmd install --global @google/gemini-cli
+
 
 }
 
@@ -247,36 +220,29 @@ Install-BaseTools
 
 
 
-$selected = Select-AITools
+$selectedTools = Select-AITools
 
 
 
-foreach($tool in $selected){
+foreach($tool in $selectedTools){
 
 
     switch($tool){
 
 
         "claude" {
-
             Install-Claude
-
         }
 
 
         "codex" {
-
             Install-Codex
-
         }
 
 
         "gemini" {
-
             Install-Gemini
-
         }
-
 
     }
 
@@ -292,11 +258,6 @@ Write-Host "설치 완료!" -ForegroundColor Green
 Write-Host ""
 
 Write-Host "사용 가능한 명령어:"
-
 Write-Host " claude"
-
 Write-Host " codex"
-
 Write-Host " gemini"
-
-Write-Host ""
