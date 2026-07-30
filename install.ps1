@@ -34,9 +34,8 @@ try {
         [System.IO.File]::WriteAllText($tempFile, $scriptContent, $utf8WithBom)
 
         # 스위치 파라미터는 값이 켜져 있을 때만 인자로 추가한다.
-        # (powershell.exe -File 로 새 프로세스를 띄울 때 "-SkipGit:$SkipGit" 형태로
-        #  콜론+변수를 그대로 넘기면, 자식 프로세스의 파라미터 바인더가
-        #  SwitchParameter로 변환하지 못해 오류가 발생한다)
+        # (powershell.exe -File 로 새 프로세스를 띄울 때 콜론+변수를 그대로 넘기면
+        #  자식 프로세스의 파라미터 바인더가 SwitchParameter로 변환하지 못해 오류가 발생한다)
         $childArgs = @("-ExecutionPolicy", "Bypass", "-File", $tempFile)
         if ($SkipGit)  { $childArgs += "-SkipGit" }
         if ($NoPrompt) { $childArgs += "-NoPrompt" }
