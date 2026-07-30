@@ -18,6 +18,7 @@ $ErrorActionPreference = "Stop"
 
 
 function Write-Step {
+
     param(
         [string]$Message
     )
@@ -41,10 +42,12 @@ function Refresh-Path {
 
     $env:Path = "$machinePath;$userPath"
 
+
     $extraPaths = @(
         "C:\Program Files\nodejs",
         "$env:APPDATA\npm"
     )
+
 
     foreach ($path in $extraPaths) {
 
@@ -55,6 +58,7 @@ function Refresh-Path {
         }
     }
 }
+
 
 
 function Install-BaseTools {
@@ -75,6 +79,7 @@ function Install-BaseTools {
 
         Write-Host "Git 설치"
 
+
         winget install `
             --id Git.Git `
             --silent `
@@ -86,6 +91,7 @@ function Install-BaseTools {
 
     Write-Host "Node.js 설치"
 
+
     winget install `
         --id OpenJS.NodeJS.LTS `
         --silent `
@@ -93,31 +99,37 @@ function Install-BaseTools {
         --accept-source-agreements
 
 
+
     Write-Host "환경 변수 갱신"
 
-Refresh-Path
+
+    Refresh-Path
 
 
-if (Get-Command node.exe -ErrorAction SilentlyContinue) {
 
-    Write-Host "Node 설치 확인 완료" -ForegroundColor Green
+    if (Get-Command node.exe -ErrorAction SilentlyContinue) {
 
-}
-else {
+        Write-Host "Node 설치 확인 완료" -ForegroundColor Green
 
-    Write-Host "Node를 찾지 못했습니다." -ForegroundColor Yellow
+    }
+    else {
 
-}
+        Write-Host "Node를 찾지 못했습니다." -ForegroundColor Yellow
+
+    }
 
 
-if (Get-Command npm.cmd -ErrorAction SilentlyContinue) {
 
-    Write-Host "npm 설치 확인 완료" -ForegroundColor Green
+    if (Get-Command npm.cmd -ErrorAction SilentlyContinue) {
 
-}
-else {
+        Write-Host "npm 설치 확인 완료" -ForegroundColor Green
 
-    Write-Host "npm을 찾지 못했습니다." -ForegroundColor Yellow
+    }
+    else {
+
+        Write-Host "npm을 찾지 못했습니다." -ForegroundColor Yellow
+
+    }
 
 }
 
@@ -134,23 +146,32 @@ function Install-ClaudeCode {
 
     if (!(Get-Command npm.cmd -ErrorAction SilentlyContinue)) {
 
-        Write-Host "npm을 찾을 수 없습니다. Node.js 설치 후 다시 실행하세요." -ForegroundColor Yellow
+        Write-Host "npm이 없습니다. Node.js 설치 후 다시 실행하세요." -ForegroundColor Yellow
 
         return $false
 
     }
 
 
-    npm install --global @anthropic-ai/claude-code
+
+    npm.cmd install --global @anthropic-ai/claude-code
+
+
+
+    Refresh-Path
+
 
 
     if (Get-Command claude -ErrorAction SilentlyContinue) {
 
         Write-Host "Claude Code 설치 완료" -ForegroundColor Green
+
         return $true
 
     }
 
+
+    Write-Host "Claude Code 설치 확인 실패" -ForegroundColor Yellow
 
     return $false
 
@@ -169,23 +190,32 @@ function Install-Codex {
 
     if (!(Get-Command npm.cmd -ErrorAction SilentlyContinue)) {
 
-        Write-Host "npm을 찾을 수 없습니다." -ForegroundColor Yellow
+        Write-Host "npm이 없습니다." -ForegroundColor Yellow
 
         return $false
 
     }
 
 
+
     npm.cmd install --global @openai/codex
+
+
+
+    Refresh-Path
+
 
 
     if (Get-Command codex -ErrorAction SilentlyContinue) {
 
         Write-Host "Codex 설치 완료" -ForegroundColor Green
+
         return $true
 
     }
 
+
+    Write-Host "Codex 설치 확인 실패" -ForegroundColor Yellow
 
     return $false
 
@@ -193,13 +223,22 @@ function Install-Codex {
 
 
 
+
+# ==========================
+# 설치 시작
+# ==========================
+
+
 Write-Step "OneShot AI 개발환경 시작"
+
 
 
 $results = @()
 
 
+
 Install-BaseTools
+
 
 
 $results += Install-ClaudeCode
@@ -210,7 +249,10 @@ $results += Install-Codex
 
 Write-Host ""
 
+
+
 if ($results -contains $false) {
+
 
     Write-Host "일부 도구 설치가 완료되지 않았습니다." -ForegroundColor Yellow
 
@@ -220,6 +262,7 @@ if ($results -contains $false) {
 }
 else {
 
+
     Write-Host "모든 설치 완료!" -ForegroundColor Green
 
 }
@@ -227,6 +270,7 @@ else {
 
 
 Write-Host ""
+
 Write-Host "사용 가능한 명령어:"
 Write-Host "  claude"
 Write-Host "  codex"
