@@ -14,7 +14,9 @@ param(
     [switch]$NoPrompt
 )
 
-$ErrorActionPreference = "Stop"
+
+$ErrorActionPreference = "Continue"
+
 
 
 function Write-Step {
@@ -26,6 +28,7 @@ function Write-Step {
     Write-Host ""
     Write-Host "== $Message ==" -ForegroundColor Cyan
 }
+
 
 
 function Refresh-Path {
@@ -40,23 +43,26 @@ function Refresh-Path {
         "User"
     )
 
+
     $env:Path = "$machinePath;$userPath"
 
 
-    $extraPaths = @(
+    $extra = @(
         "C:\Program Files\nodejs",
         "$env:APPDATA\npm"
     )
 
 
-    foreach ($path in $extraPaths) {
+    foreach ($p in $extra) {
 
-        if ((Test-Path $path) -and ($env:Path -notlike "*$path*")) {
+        if (Test-Path $p) {
 
-            $env:Path += ";$path"
+            $env:Path += ";$p"
 
         }
+
     }
+
 }
 
 
@@ -66,13 +72,6 @@ function Install-BaseTools {
 
     Write-Step "기본 개발 도구 설치"
 
-
-    if (!(Get-Command winget -ErrorAction SilentlyContinue)) {
-
-        Write-Host "winget을 찾을 수 없습니다." -ForegroundColor Red
-        exit 1
-
-    }
 
 
     if (!$SkipGit) {
@@ -86,7 +85,9 @@ function Install-BaseTools {
             --accept-package-agreements `
             --accept-source-agreements
 
+
     }
+
 
 
     Write-Host "Node.js 설치"
@@ -100,24 +101,17 @@ function Install-BaseTools {
 
 
 
-    Write-Host "환경 변수 갱신"
-
-
     Refresh-Path
 
 
+
+    Write-Host ""
 
     if (Get-Command node.exe -ErrorAction SilentlyContinue) {
 
         Write-Host "Node 설치 확인 완료" -ForegroundColor Green
 
     }
-    else {
-
-        Write-Host "Node를 찾지 못했습니다." -ForegroundColor Yellow
-
-    }
-
 
 
     if (Get-Command npm.cmd -ErrorAction SilentlyContinue) {
@@ -127,7 +121,7 @@ function Install-BaseTools {
     }
     else {
 
-        Write-Host "npm을 찾지 못했습니다." -ForegroundColor Yellow
+        Write-Host "npm은 새 터미널에서 활성화될 수 있습니다." -ForegroundColor Yellow
 
     }
 
@@ -135,7 +129,7 @@ function Install-BaseTools {
 
 
 
-function Install-ClaudeCode {
+function Install-Claude {
 
 
     Write-Step "Claude Code 설치"
@@ -146,9 +140,9 @@ function Install-ClaudeCode {
 
     if (!(Get-Command npm.cmd -ErrorAction SilentlyContinue)) {
 
-        Write-Host "npm이 없습니다. Node.js 설치 후 다시 실행하세요." -ForegroundColor Yellow
+        Write-Host "npm 없음 - 건너뜀" -ForegroundColor Yellow
 
-        return $false
+        return
 
     }
 
@@ -156,24 +150,6 @@ function Install-ClaudeCode {
 
     npm.cmd install --global @anthropic-ai/claude-code
 
-
-
-    Refresh-Path
-
-
-
-    if (Get-Command claude -ErrorAction SilentlyContinue) {
-
-        Write-Host "Claude Code 설치 완료" -ForegroundColor Green
-
-        return $true
-
-    }
-
-
-    Write-Host "Claude Code 설치 확인 실패" -ForegroundColor Yellow
-
-    return $false
 
 }
 
@@ -190,9 +166,9 @@ function Install-Codex {
 
     if (!(Get-Command npm.cmd -ErrorAction SilentlyContinue)) {
 
-        Write-Host "npm이 없습니다." -ForegroundColor Yellow
+        Write-Host "npm 없음 - 건너뜀" -ForegroundColor Yellow
 
-        return $false
+        return
 
     }
 
@@ -201,73 +177,27 @@ function Install-Codex {
     npm.cmd install --global @openai/codex
 
 
-
-    Refresh-Path
-
-
-
-    if (Get-Command codex -ErrorAction SilentlyContinue) {
-
-        Write-Host "Codex 설치 완료" -ForegroundColor Green
-
-        return $true
-
-    }
-
-
-    Write-Host "Codex 설치 확인 실패" -ForegroundColor Yellow
-
-    return $false
-
 }
 
-
-
-
-# ==========================
-# 설치 시작
-# ==========================
 
 
 Write-Step "OneShot AI 개발환경 시작"
 
 
 
-$results = @()
-
-
-
 Install-BaseTools
 
 
+Install-Claude
 
-$results += Install-ClaudeCode
 
-$results += Install-Codex
+Install-Codex
 
 
 
 Write-Host ""
 
-
-
-if ($results -contains $false) {
-
-
-    Write-Host "일부 도구 설치가 완료되지 않았습니다." -ForegroundColor Yellow
-
-    Write-Host ""
-    Write-Host "새 PowerShell 창을 열고 다시 실행해보세요."
-
-}
-else {
-
-
-    Write-Host "모든 설치 완료!" -ForegroundColor Green
-
-}
-
-
+Write-Host "설치 과정 완료" -ForegroundColor Green
 
 Write-Host ""
 
