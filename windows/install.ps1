@@ -29,18 +29,29 @@ function Write-Step {
 
 function Refresh-Path {
 
-    $paths = @(
+    $machinePath = [Environment]::GetEnvironmentVariable(
+        "Path",
+        "Machine"
+    )
+
+    $userPath = [Environment]::GetEnvironmentVariable(
+        "Path",
+        "User"
+    )
+
+    $env:Path = "$machinePath;$userPath"
+
+    $extraPaths = @(
         "C:\Program Files\nodejs",
         "$env:APPDATA\npm"
     )
 
-    foreach ($path in $paths) {
+    foreach ($path in $extraPaths) {
 
-        if (Test-Path $path) {
+        if ((Test-Path $path) -and ($env:Path -notlike "*$path*")) {
 
-            if ($env:Path -notlike "*$path*") {
-                $env:Path += ";$path"
-            }
+            $env:Path += ";$path"
+
         }
     }
 }
@@ -84,19 +95,29 @@ function Install-BaseTools {
 
     Write-Host "환경 변수 갱신"
 
-    Refresh-Path
+Refresh-Path
 
 
-    if (Get-Command node -ErrorAction SilentlyContinue) {
+if (Get-Command node.exe -ErrorAction SilentlyContinue) {
 
-        Write-Host "Node 설치 확인 완료" -ForegroundColor Green
+    Write-Host "Node 설치 확인 완료" -ForegroundColor Green
 
-    }
-    else {
+}
+else {
 
-        Write-Host "Node 설치 후 새 PowerShell 실행이 필요할 수 있습니다." -ForegroundColor Yellow
+    Write-Host "Node를 찾지 못했습니다." -ForegroundColor Yellow
 
-    }
+}
+
+
+if (Get-Command npm.cmd -ErrorAction SilentlyContinue) {
+
+    Write-Host "npm 설치 확인 완료" -ForegroundColor Green
+
+}
+else {
+
+    Write-Host "npm을 찾지 못했습니다." -ForegroundColor Yellow
 
 }
 
@@ -111,7 +132,7 @@ function Install-ClaudeCode {
     Refresh-Path
 
 
-    if (!(Get-Command npm -ErrorAction SilentlyContinue)) {
+    if (!(Get-Command npm.cmd -ErrorAction SilentlyContinue)) {
 
         Write-Host "npm을 찾을 수 없습니다. Node.js 설치 후 다시 실행하세요." -ForegroundColor Yellow
 
@@ -146,7 +167,7 @@ function Install-Codex {
     Refresh-Path
 
 
-    if (!(Get-Command npm -ErrorAction SilentlyContinue)) {
+    if (!(Get-Command npm.cmd -ErrorAction SilentlyContinue)) {
 
         Write-Host "npm을 찾을 수 없습니다." -ForegroundColor Yellow
 
@@ -155,7 +176,7 @@ function Install-Codex {
     }
 
 
-    npm install --global @openai/codex
+    npm.cmd install --global @openai/codex
 
 
     if (Get-Command codex -ErrorAction SilentlyContinue) {
